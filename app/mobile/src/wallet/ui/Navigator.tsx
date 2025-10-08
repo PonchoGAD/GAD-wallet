@@ -1,6 +1,6 @@
-// app/mobile/src/wallet/ui/Navigator.tsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import WalletHome from './WalletHome';
 import SendScreen from './SendScreen';
 import ReceiveScreen from './ReceiveScreen';
@@ -9,7 +9,7 @@ import NftScreen from './NftScreen';
 import AddTokenScreen from './AddTokenScreen';
 
 export type RootStackParamList = {
-  WalletHome: undefined;
+  Wallet: undefined;
   Send: undefined;
   Receive: undefined;
   Swap: undefined;
@@ -19,19 +19,23 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Workaround for a typing quirk with React 19 & @react-navigation v7
-const StackNavigator = Stack.Navigator as unknown as React.ComponentType<any>;
-const StackScreen = Stack.Screen as unknown as React.ComponentType<any>;
-
 export default function Navigator() {
   return (
-    <StackNavigator /* id is intentionally omitted; types demand `id: undefined` */ initialRouteName="WalletHome">
-      <StackScreen name="WalletHome" component={WalletHome} options={{ title: 'Wallet' }} />
-      <StackScreen name="Send" component={SendScreen} />
-      <StackScreen name="Receive" component={ReceiveScreen} />
-      <StackScreen name="Swap" component={SwapScreen} />
-      <StackScreen name="NFT" component={NftScreen} />
-      <StackScreen name="AddToken" component={AddTokenScreen} />
-    </StackNavigator>
+    <Stack.Navigator
+      id={undefined} // исправляем типовую проверку
+      initialRouteName="Wallet"
+      screenOptions={{
+        headerTitleAlign: 'center',
+        headerStyle: { backgroundColor: '#0B0C10' },
+        headerTintColor: '#F7F8FA',
+      }}
+    >
+      <Stack.Screen name="Wallet" component={WalletHome} options={{ title: 'Wallet' }} />
+      <Stack.Screen name="Send" component={SendScreen} options={{ title: 'Send' }} />
+      <Stack.Screen name="Receive" component={ReceiveScreen} options={{ title: 'Receive' }} />
+      <Stack.Screen name="Swap" component={SwapScreen} options={{ title: 'Swap' }} />
+      <Stack.Screen name="NFT" component={NftScreen} options={{ title: 'NFT Marketplace' }} />
+      <Stack.Screen name="AddToken" component={AddTokenScreen} options={{ title: 'Add Token' }} />
+    </Stack.Navigator>
   );
 }

@@ -1,99 +1,68 @@
-import React, { useEffect, useState } from 'react';
-import { ImageBackground, View, Text, StyleSheet, FlatList } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
-import QRCode from 'react-native-qrcode-svg';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
-import { G } from './theme';
+import React, { useEffect } from 'react';
+import { Image, ImageBackground, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Card, GButton } from './components/UI';
-
-import { TOKENS } from '../services/constants';
-import { getErc20Balance, getNativeBalance } from '../services/discovery';
-import { ensureMnemonic, deriveAddressFromMnemonic } from '../services/seed';
 import { useBalancesStore } from '../state/balancesStore';
+import { TOKENS } from '../services/constants';
+import { RootStackParamList } from './Navigator';
 
-const hero = require('../../../../assets/gad_darktech_v2_mobile_1080x1920.png'); // добавь картинку в assets
-const logo = require('../../../../assets/gad_darktech_v2_card.png');              // и эту тоже
+const hero = require('../../assets/gad_darktech_v2_mobile_1080x1920.png');
+const logo = require('../../assets/gad_darktech_v2_card.png');
 
-export default function WalletHome({ navigation }: any) {
-  const [address, setAddress] = useState<`0x${string}` | null>(null);
-  const { balances, setBalance } = useBalancesStore();
+export default function WalletHome() {
+  const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { balances } = useBalancesStore();
 
   useEffect(() => {
-    (async () => {
-      const mnemonic = await ensureMnemonic();
-      const addr = await deriveAddressFromMnemonic(mnemonic, 0);
-      setAddress(addr);
-
-      // balances
-      if (!addr) return;
-      const bnb = await getNativeBalance(addr);
-      setBalance('BNB', bnb);
-
-      const gad = await getErc20Balance(TOKENS.GAD.address as any, addr, TOKENS.GAD.decimals);
-      const usdt = await getErc20Balance(TOKENS.USDT.address as any, addr, TOKENS.USDT.decimals);
-      const wbnb = await getErc20Balance(TOKENS.WBNB.address as any, addr, TOKENS.WBNB.decimals);
-      setBalance('GAD', gad);
-      setBalance('USDT', usdt);
-      setBalance('WBNB', wbnb);
-    })();
+    // тут можешь дернуть обновление балансов, если нужно
   }, []);
 
   return (
-    <ImageBackground source={hero} resizeMode="cover" style={{ flex: 1, backgroundColor: G.colors.bg }}>
-      <SafeAreaView style={{ flex: 1, padding: G.spacing(2) }}>
-        <View style={{ alignItems: 'center', marginTop: G.spacing(2), marginBottom: G.spacing(2) }}>
-          <Card style={{ width: '100%' }} title="GAD Wallet · Family" subtitle="Total Balance">
-            <View style={{ flexDirection: 'row', gap: G.spacing(2) }}>
-              <View style={styles.logoBox}>
-                <ImageBackground source={logo} style={{ width: '100%', height: '100%' }} resizeMode="contain" />
-              </View>
-
-              <View style={{ flex: 1 }}>
-                <Text selectable style={styles.addr}>{address ?? '—'}</Text>
-
-                <FlatList
-                  style={{ marginTop: G.spacing(1) }}
-                  data={Object.keys(balances)}
-                  keyExtractor={(k) => k}
-                  renderItem={({ item }) => (
-                    <View style={styles.row}>
-                      <Text style={styles.rowKey}>{item}</Text>
-                      <Text style={styles.rowVal}>{Number(balances[item]).toFixed(6)}</Text>
-                    </View>
-                  )}
-                />
-
-                <View style={styles.actions}>
-                  <GButton title="Send" onPress={() => navigation.navigate('Send')} />
-                  <GButton title="Receive" onPress={() => navigation.navigate('Receive')} />
-                  <GButton title="Stake" onPress={() => navigation.navigate('Stake')} />
-                  <GButton title="Swap" onPress={() => navigation.navigate('Swap')} />
-                </View>
-              </View>
+    <ImageBackground source={hero} resizeMode="cover" style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Card title="GAD Wallet · Family" subtitle="Total Balance" style={{ width: '100%' }}>
+          <View style={styles.cardRow}>
+            <Image source={logo} style={{ width: 140, height: 140, borderRadius: 16 }} resizeMode="contain" />
+            <View style={{ flex: 1 }}>
+              {(['BNB','GAD','USDT','WBNB'] as const).map(sym => (
+                <Row key={sym} label={sym} value={(balances[sym] ?? 0).toFixed(6)} />
+              ))}
             </View>
-          </Card>
+          </View>
 
-          {address && (
-            <View style={{ marginTop: G.spacing(2) }}>
-              <QRCode value={address} size={140} backgroundColor="transparent" color={G.colors.text} />
-            </View>
-          )}
-        </View>
-      </SafeAreaView>
+          {/* Первая строка действий */}
+          <View style={styles.actions}>
+            <GButton title="Send"    onPress={() => nav.navigate('Send')} />
+            <GButton title="Receive" onPress={() => nav.navigate('Receive')} />
+            <GButton title="Swap"    onPress={() => nav.navigate('Swap')} />
+          </View>
+
+          {/* Вторая строка действий */}
+          <View style={styles.actions}>
+            <GButton title="NFT"        onPress={() => nav.navigate('NFT')} />
+            <GButton title="Add Token"  onPress={() => nav.navigate('AddToken')} />
+          </View>
+        </Card>
+      </ScrollView>
     </ImageBackground>
   );
 }
 
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.row}>
+      <Text style={styles.rowLabel}>{label}</Text>
+      <Text style={styles.rowVal}>{value}</Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  logoBox: {
-    width: 110, height: 110,
-    borderRadius: G.radius.md,
-    overflow: 'hidden',
-  },
-  addr: { color: G.colors.sub, fontSize: 12, marginTop: 2 },
+  container: { padding: 16, gap: 16 },
+  cardRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 16, gap: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  rowKey: { color: G.colors.text, fontWeight: '600' },
-  rowVal: { color: G.colors.text },
-  actions: { flexDirection: 'row', gap: 10, marginTop: G.spacing(2), flexWrap: 'wrap' },
+  rowLabel: { color: 'white', fontSize: 16, fontWeight: '700' },
+  rowVal: { color: 'white', fontVariant: ['tabular-nums'], fontSize: 16 },
 });

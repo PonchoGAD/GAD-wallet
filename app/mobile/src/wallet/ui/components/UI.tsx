@@ -1,75 +1,42 @@
-// app/mobile/src/wallet/ui/components/UI.tsx
-import React from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  ViewStyle,
-  StyleProp,
-} from 'react-native';
-
-// Небольшой helper под отступы/радиусы — не ломает твою тему
-const G = {
-  colors: {
-    card: 'rgba(255,255,255,0.06)',
-    cardBorder: 'rgba(212,175,55,0.6)',
-    text: '#F7F8FA',
-    sub: 'rgba(247,248,250,0.7)',
-    btn: '#0A84FF',
-    btnText: '#ffffff',
-  },
-  radius: 16,
-  spacing: (n: number) => 8 * n,
-  shadow: {
-    elevated: {
-      shadowColor: '#000',
-      shadowOpacity: 0.25,
-      shadowRadius: 14,
-      shadowOffset: { width: 0, height: 10 },
-      elevation: 8,
-    } as ViewStyle,
-  },
-};
+import React, { ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { useTheme } from '../theme';
 
 type CardProps = {
-  title?: string;
+  title: string;
   subtitle?: string;
-  children?: React.ReactNode;
-  style?: StyleProp<ViewStyle>;
+  style?: ViewStyle;
+  children?: ReactNode;
 };
 
-export const Card: React.FC<CardProps> = ({
-  title,
-  subtitle,
-  children,
-  style,
-}) => {
+export const Card = ({ title, subtitle, style, children }: CardProps) => {
+  const G = useTheme();
   return (
     <View style={[styles.card, G.shadow.elevated, style]}>
-      {title ? <Text style={styles.title}>{title}</Text> : null}
+      <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       {children}
     </View>
   );
 };
 
-type GButtonProps = {
+type BtnProps = {
   title: string;
   onPress?: () => void;
-  style?: StyleProp<ViewStyle>;
+  style?: ViewStyle;
 };
 
-export const GButton: React.FC<GButtonProps> = ({ title, onPress, style }) => {
+export const GButton = ({ title, onPress, style }: BtnProps) => {
+  const G = useTheme();
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.btn,
-        pressed && styles.btnPressed,
+        G.shadow.elevated,         // было G.shadow.btn — такого ключа нет
+        pressed && { opacity: 0.9 },
         style,
       ]}
-      android_ripple={{ color: 'rgba(255,255,255,0.15)' }}
     >
       <Text style={styles.btnText}>{title}</Text>
     </Pressable>
@@ -78,38 +45,16 @@ export const GButton: React.FC<GButtonProps> = ({ title, onPress, style }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: G.colors.card,
-    borderRadius: G.radius,
-    borderWidth: 1,
-    borderColor: G.colors.cardBorder,
-    padding: G.spacing(2),
+    borderRadius: 16,
+    padding: 16,
   },
-  title: {
-    color: G.colors.text,
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  subtitle: {
-    color: G.colors.sub,
-    fontSize: 13,
-    marginBottom: G.spacing(1.5),
-  },
+  title: { fontSize: 18, fontWeight: '700', color: '#fff' },
+  subtitle: { marginTop: 4, opacity: 0.7, color: '#fff' },
   btn: {
-    backgroundColor: G.colors.btn,
-    borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderRadius: 14,
+    backgroundColor: '#0A84FF',
   },
-  btnPressed: {
-    opacity: 0.9,
-  },
-  btnText: {
-    color: G.colors.btnText,
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-  },
+  btnText: { color: '#fff', textAlign: 'center', fontSize: 16, fontWeight: '700' },
 });
