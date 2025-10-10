@@ -42,7 +42,7 @@ export default function ReceiveScreen() {
             </View>
 
             <View style={styles.qrContainer}>
-              <QRCode value={address} size={200} backgroundColor="transparent" />
+              <QRCode value={address} size={200} backgroundColor="transparent" color="#F7F8FA" />
             </View>
           </>
         )}

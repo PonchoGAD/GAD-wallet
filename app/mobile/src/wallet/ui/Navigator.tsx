@@ -1,3 +1,4 @@
+// app/mobile/src/wallet/ui/Navigator.tsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -8,6 +9,9 @@ import SwapScreen from './SwapScreen';
 import NftScreen from './NftScreen';
 import AddTokenScreen from './AddTokenScreen';
 
+// 👇 NEW: in-app WebView для AI Mint
+import AiMintWebView from './AiMintWebView';
+
 export type RootStackParamList = {
   Wallet: undefined;
   Send: undefined;
@@ -15,6 +19,8 @@ export type RootStackParamList = {
   Swap: undefined;
   NFT: undefined;
   AddToken: undefined;
+  // 👇 NEW
+  AiMintWeb: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -22,7 +28,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export default function Navigator() {
   return (
     <Stack.Navigator
-      id={undefined} // исправляем типовую проверку
+      id={undefined} // исправляем типовую проверку (как у тебя было)
       initialRouteName="Wallet"
       screenOptions={{
         headerTitleAlign: 'center',
@@ -36,6 +42,9 @@ export default function Navigator() {
       <Stack.Screen name="Swap" component={SwapScreen} options={{ title: 'Swap' }} />
       <Stack.Screen name="NFT" component={NftScreen} options={{ title: 'NFT Marketplace' }} />
       <Stack.Screen name="AddToken" component={AddTokenScreen} options={{ title: 'Add Token' }} />
+
+      {/* 👇 NEW: экран встроенного WebView для AI Mint */}
+      <Stack.Screen name="AiMintWeb" component={AiMintWebView} options={{ title: 'AI Mint' }} />
     </Stack.Navigator>
   );
 }

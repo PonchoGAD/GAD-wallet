@@ -15,7 +15,7 @@ export default function SwapScreen() {
   const resolve = (sym: 'BNB'|'GAD'): Address => TOKENS[sym].address as Address;
 
   const handleQuote = async () => {
-    const amt = Number(amount);
+    const amt = Number(String(amount).replace(',', '.'));
     if (!amt || amt <= 0) { Alert.alert('Error', 'Enter a valid amount'); return; }
     try {
       const { amountOut } = await quoteExactIn(
