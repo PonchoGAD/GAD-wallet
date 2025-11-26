@@ -1,7 +1,7 @@
 // app/mobile/src/AppNavigator.tsx
 // ---------------------------------------------
 // Корневой навигатор приложения:
-//  - Main (плейсхолдер для основного приложения)
+//  - Main (основное приложение)
 //  - Wallet (вход в стек GAD Wallet)
 // ---------------------------------------------
 
@@ -11,17 +11,26 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
 
 import WalletNavigator from './wallet/ui/Navigator';
+import { GButton } from './wallet/ui/components/UI';
 
-function MainScreen() {
+function MainScreen({ navigation }: any) {
   return (
     <View style={styles.mainContainer}>
       <StatusBar barStyle="light-content" />
+
       <Text style={styles.mainTitle}>GAD Family App</Text>
       <Text style={styles.mainSubtitle}>
         Main application area (dashboard / app modules).
       </Text>
+
+      <GButton
+        title="Open Wallet"
+        onPress={() => navigation.navigate('Wallet')}
+        style={{ marginTop: 30, width: 180 }}
+      />
+
       <Text style={styles.mainHint}>
-        Wallet is available as a separate screen: &quot;Wallet&quot;.
+        Wallet is available as a separate screen: "Wallet".
       </Text>
     </View>
   );
