@@ -1,8 +1,8 @@
-// src/screens/AiMintWebView.tsx
-import React from "react";
-import { View, ActivityIndicator, StyleSheet } from "react-native";
-import { WebView } from "react-native-webview";
-import { MINT_URL } from "../../config/env";
+// app/mobile/src/wallet/ui/AiMintWebView.tsx
+import React from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { WebView } from 'react-native-webview';
+import { MINT_URL } from '../../config/env';
 
 export default function AiMintWebView() {
   return (
@@ -12,14 +12,15 @@ export default function AiMintWebView() {
         startInLoadingState
         renderLoading={() => (
           <View style={styles.loading}>
-            <ActivityIndicator />
+            <ActivityIndicator color="#F7F8FA" />
           </View>
         )}
       />
     </View>
   );
 }
+
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#fff" },
-  loading: { flex: 1, alignItems: "center", justifyContent: "center" },
+  root: { flex: 1, backgroundColor: '#0B0C10' },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });

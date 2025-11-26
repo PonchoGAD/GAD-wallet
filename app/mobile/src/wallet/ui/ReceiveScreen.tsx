@@ -1,23 +1,40 @@
+// app/mobile/src/wallet/ui/ReceiveScreen.tsx
+// ---------------------------------------------
+// Экран приёма: адрес + QR, ScrollView + FooterNav
+// ---------------------------------------------
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, Alert, StyleSheet } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import {
+  View,
+  Text,
+  Alert,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import * as Clipboard from 'expo-clipboard';
-import { deriveAddressFromMnemonic } from '../services/seed'; // у тебя уже есть
 import type { Address } from 'viem';
 
+import { ensureWalletCore } from '../state/walletStore';
+import { useTheme } from './theme';
+import { Card, GButton } from './components/UI';
+import WalletFooterNav from './components/WalletFooterNav';
+
 export default function ReceiveScreen() {
+  const G = useTheme();
   const [address, setAddress] = useState<Address | null>(null);
 
   useEffect(() => {
     (async () => {
-      const mnemonic = await SecureStore.getItemAsync('mnemonic');
-      if (!mnemonic) {
-        Alert.alert('Error', 'Mnemonic not found. Open wallet tab first.');
-        return;
+      try {
+        const wallet = await ensureWalletCore();
+        setAddress(wallet.address as Address);
+      } catch (e) {
+        console.warn('[ReceiveScreen] wallet init error:', e);
+        Alert.alert('Error', 'Failed to initialize wallet');
       }
-      const addr = deriveAddressFromMnemonic(mnemonic, 0);
-      setAddress(addr as Address);
     })();
   }, []);
 
@@ -28,82 +45,106 @@ export default function ReceiveScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Receive Tokens</Text>
-        <Text style={styles.subtitle}>Your BSC Address</Text>
+    <View style={{ flex: 1, backgroundColor: G.colors.bg }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Card
+            title="Receive Tokens"
+            subtitle="Your BNB Chain address"
+            style={{ width: '100%', alignItems: 'center' }}
+          >
+            <Text
+              style={[
+                styles.subtitleTop,
+                { color: G.colors.accentSoft },
+              ]}
+            >
+              Share this address to receive GAD, BNB, USDT and more
+            </Text>
 
-        {address && (
-          <>
-            <View style={styles.addressBox}>
-              <Text selectable style={styles.address}>
-                {address}
-              </Text>
-            </View>
+            {address && (
+              <>
+                <View
+                  style={[
+                    styles.addressBox,
+                    {
+                      backgroundColor: G.colors.inputBg,
+                      borderColor: G.colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    selectable
+                    style={[
+                      styles.address,
+                      { color: G.colors.text },
+                    ]}
+                  >
+                    {address}
+                  </Text>
+                </View>
 
-            <View style={styles.qrContainer}>
-              <QRCode value={address} size={200} backgroundColor="transparent" color="#F7F8FA" />
-            </View>
-          </>
-        )}
+                <View
+                  style={[
+                    styles.qrContainer,
+                    { backgroundColor: G.colors.cardAlt },
+                  ]}
+                >
+                  <QRCode
+                    value={address}
+                    size={200}
+                    backgroundColor="transparent"
+                    color={G.colors.text}
+                  />
+                </View>
+              </>
+            )}
 
-        <View style={styles.btnWrap}>
-          <Button title="Copy address" color="#0A84FF" onPress={copy} />
-        </View>
-      </View>
+            <GButton
+              title="Copy address"
+              onPress={copy}
+              style={{ marginTop: 8, alignSelf: 'stretch' }}
+            />
+          </Card>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      <WalletFooterNav active="Receive" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#0B0C10',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 16,
+    justifyContent: 'center',
+    flexGrow: 1,
   },
-  card: {
-    width: '100%',
-    backgroundColor: '#1C1E26',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#D4AF37',
-    alignItems: 'center',
-  },
-  title: {
-    color: '#F7F8FA',
-    fontSize: 22,
-    fontWeight: '800',
-    marginBottom: 8,
-  },
-  subtitle: {
-    color: '#80FFD3',
-    fontSize: 16,
+  subtitleTop: {
+    fontSize: 12,
+    textAlign: 'center',
     marginBottom: 16,
   },
   addressBox: {
-    backgroundColor: '#2A2E37',
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 12,
     marginBottom: 20,
+    borderWidth: 1,
   },
   address: {
-    color: '#F7F8FA',
     fontSize: 14,
     textAlign: 'center',
   },
   qrContainer: {
-    backgroundColor: '#0B0C10',
     borderRadius: 16,
     padding: 10,
     marginBottom: 20,
-  },
-  btnWrap: {
-    width: '100%',
-    overflow: 'hidden',
-    borderRadius: 14,
   },
 });

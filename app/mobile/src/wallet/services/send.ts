@@ -1,3 +1,6 @@
+// app/mobile/src/wallet/services/send.ts
+// Чистый core-слой: никакого React/Expo, только viem-клиенты.
+
 import type { Address } from 'viem';
 import { publicClient } from './bscClient';
 import { walletClientFromPriv } from './signer';
@@ -7,13 +10,13 @@ import { ERC20_ABI } from './abi';
 export async function sendNative(
   privKey: `0x${string}`,
   to: Address,
-  amountWei: string,
+  amountWei: string | bigint,
 ) {
   const { wallet, account } = walletClientFromPriv(privKey);
-  const value = BigInt(amountWei);
+  const value = typeof amountWei === 'string' ? BigInt(amountWei) : amountWei;
 
   const hash = await wallet.sendTransaction(
-    { account, to, value } as any // ← «анти-сыпучая» прокладка типов
+    { account, to, value } as any, // «анти-сыпучий» каст типов viem
   );
 
   await publicClient.waitForTransactionReceipt({ hash });
@@ -36,7 +39,7 @@ export async function sendERC20(
       functionName: 'transfer',
       args: [to, amountWei],
       account,
-    } as any
+    } as any,
   );
 
   await publicClient.waitForTransactionReceipt({ hash: txHash });

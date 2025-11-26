@@ -1,13 +1,18 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 
-export default function AssetRow({
-  symbol,
-  balance,
-  onPress,
-}: { symbol: string; balance: string; onPress?: () => void }) {
+type Props = {
+  symbol: string;
+  balance: string;
+  onPress?: () => void;
+};
+
+export default function AssetRow({ symbol, balance, onPress }: Props) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+    >
       <View style={styles.icon} />
       <Text style={styles.symbol}>{symbol}</Text>
       <View style={{ flex: 1 }} />

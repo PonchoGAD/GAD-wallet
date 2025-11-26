@@ -1,4 +1,6 @@
 // app/mobile/src/polyfills.ts
+// Глобальные полифиллы, чтобы web3/viem/ethers нормально работали в React Native.
+
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';
 
@@ -11,5 +13,5 @@ try {
     (globalThis as any).TextDecoder = require('text-encoding').TextDecoder;
   }
 } catch {
-  // ignore
+  // ignore — на всякий случай не роняем приложение
 }

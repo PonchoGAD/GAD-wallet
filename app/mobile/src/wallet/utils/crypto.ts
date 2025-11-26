@@ -1,3 +1,4 @@
+// app/mobile/src/wallet/utils/crypto.ts
 import { HDNodeWallet } from 'ethers';
 
 /** Generate 12-word mnemonic (ethers v6) */

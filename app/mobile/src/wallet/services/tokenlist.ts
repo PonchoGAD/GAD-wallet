@@ -1,8 +1,8 @@
-// tokenlist.ts
+// app/mobile/src/wallet/services/tokenlist.ts
 
 import type { Address } from 'viem';
-import { TOKENS, NATIVE_SENTINEL, WBNB } from './constants';
-
+import { TOKENS, WBNB } from '../config/addresses';
+import { NATIVE_SENTINEL } from './constants';
 
 /** Basic token model for UI/services */
 export type TokenInfo = {
@@ -15,7 +15,9 @@ export type TokenInfo = {
 };
 
 /** Address validator (allows native sentinel) */
-export function isAddressLike(v?: string | null): v is Address | typeof NATIVE_SENTINEL {
+export function isAddressLike(
+  v?: string | null
+): v is Address | typeof NATIVE_SENTINEL {
   if (!v) return false;
   const s = v.toLowerCase();
   if (s === NATIVE_SENTINEL.toLowerCase()) return true;
@@ -24,7 +26,9 @@ export function isAddressLike(v?: string | null): v is Address | typeof NATIVE_S
 
 export const normalizeAddress = (v: string) => v.trim().toLowerCase();
 
-export function uniqueByAddress<T extends { address: string }>(list: T[]): T[] {
+export function uniqueByAddress<T extends { address: string }>(
+  list: T[]
+): T[] {
   const seen = new Set<string>();
   const res: T[] = [];
   for (const t of list) {
@@ -87,14 +91,19 @@ export function sortTokens(a: TokenInfo, b: TokenInfo): number {
 
 export function sanitizeTokens(list: TokenInfo[]): TokenInfo[] {
   const valid = list.filter(
-    (t) => isAddressLike(t.address) && t.decimals >= 0 && t.decimals <= 36,
+    (t) =>
+      isAddressLike(t.address) &&
+      t.decimals >= 0 &&
+      t.decimals <= 36
   );
   return uniqueByAddress(valid).sort(sortTokens);
 }
 
 export const findByAddress = (list: TokenInfo[], address: string) => {
   const key = normalizeAddress(address);
-  return list.find((t) => normalizeAddress(t.address as string) === key);
+  return list.find(
+    (t) => normalizeAddress(t.address as string) === key
+  );
 };
 
 export const findBySymbol = (list: TokenInfo[], symbol: string) => {
@@ -102,10 +111,15 @@ export const findBySymbol = (list: TokenInfo[], symbol: string) => {
   return list.find((t) => t.symbol.toLowerCase() === s);
 };
 
-export function upsertToken(list: TokenInfo[], token: TokenInfo): TokenInfo[] {
+export function upsertToken(
+  list: TokenInfo[],
+  token: TokenInfo
+): TokenInfo[] {
   if (!isAddressLike(token.address)) return list;
   const key = normalizeAddress(token.address as string);
-  const idx = list.findIndex((t) => normalizeAddress(t.address as string) === key);
+  const idx = list.findIndex(
+    (t) => normalizeAddress(t.address as string) === key
+  );
   const next = [...list];
   if (idx >= 0) next[idx] = { ...next[idx], ...token };
   else next.push(token);
